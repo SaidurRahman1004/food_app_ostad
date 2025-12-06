@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/recipe_model.dart';
+import '../Models/recipe_model.dart';
 import '../services/recipe_service.dart';
 
 class RecipeListScreen extends StatelessWidget {
@@ -8,50 +8,51 @@ class RecipeListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Food Recipes'),
-        backgroundColor: Colors.teal,
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Recipe List')),
       body: FutureBuilder<List<Recipe>>(
-        future: RecipeService.loadRecipes(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+        future: RecipeService.getRecipeList(),
+        builder: (_, collections) {
+          final List<Recipe> recipes = collections.data!;
+          if (collections.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.green),
+            );
           }
-          if (snapshot.hasError) {
+
+          if (collections.hasError) {
             return Center(
               child: Text(
-                'Error: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+                collections.error.toString(),
+                style: const TextStyle(color: Colors.red, fontSize: 20),
               ),
             );
           }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No recipes found'));
+
+          if (!collections.hasData || collections.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                'No Data Found',
+                style: TextStyle(color: Colors.red, fontSize: 20),
+              ),
+            );
           }
-
-          final List<Recipe> recipes = snapshot.data!;
-
           return ListView.builder(
             itemCount: recipes.length,
-            padding: const EdgeInsets.all(8),
-            itemBuilder: (context, index) {
+            itemBuilder: (_, index) {
               final recipe = recipes[index];
               return Card(
-                elevation: 2,
+                elevation: 5,
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.all(16),
                   leading: CircleAvatar(
                     backgroundColor: Colors.teal,
                     radius: 25,
                     child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(
+                        '${index + 1}',
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -60,32 +61,39 @@ class RecipeListScreen extends StatelessWidget {
                   title: Text(
                     recipe.title,
                     style: const TextStyle(
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
                     ),
+
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
                       Text(
                         recipe.description,
-                        style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 4,
                         runSpacing: 4,
-                        children: recipe.ingredients.map((ingredient) {
-                          return Chip(
-                            label: Text(
+                        children: recipe.ingredients.map((ingredient){
+                          return Chip(label: Text(
                               ingredient,
-                              style: const TextStyle(fontSize: 11),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
-                            backgroundColor: Colors.teal.shade50,
+
+                          ),
+                            backgroundColor: Colors.teal.shade100,
                             padding: const EdgeInsets.all(2),
                           );
+
                         }).toList(),
+
                       ),
                     ],
                   ),

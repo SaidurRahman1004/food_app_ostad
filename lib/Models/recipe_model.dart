@@ -11,23 +11,9 @@ class Recipe {
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     return Recipe(
-      title: json['title'] ?? '',
+      title: json['title'] ??  '',
       description: json['description'] ?? '',
       ingredients: List<String>.from(json['ingredients'] ?? []),
-    );
-  }
-}
-
-class RecipeResponse {
-  final List<Recipe> recipes;
-
-  RecipeResponse({required this.recipes});
-
-  factory RecipeResponse.fromJson(Map<String, dynamic> json) {
-    return RecipeResponse(
-      recipes: (json['recipes'] as List)
-          .map((recipeJson) => Recipe.fromJson(recipeJson))
-          .toList(),
     );
   }
 }
